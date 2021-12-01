@@ -46,23 +46,24 @@ void AppmSolver::run()
 	while (time < maxTime && iteration < maxIterations) {
 		std::cout << "Iteration " << iteration << ",\t time = " << time << std::endl;
 		
-		double dt = twofluidSolver->updateFluxesExplicit();  // Compute time step
+		//double dt = twofluidSolver->updateFluxesExplicit();  // Compute time step
+		double dt = 0.1;
 		if (time + dt > maxTime) dt = maxTime - time;
 
-		twofluidSolver->updateRateOfChange(false);                 // Compute temporary quantities for later calculations
+		// twofluidSolver->updateRateOfChange(false);                 // Compute temporary quantities for later calculations
 		maxwellSolver->solveLinearSystem(time,                     // Solve the linear system and update <e> vector
 										 dt, 
 										 twofluidSolver->get_M_sigma(dt), 
 										 twofluidSolver->get_j_aux(dt, maxwellSolver->getInterpolated_B()));
-		twofluidSolver->updateMassFluxesImplicit(dt, maxwellSolver->getInterpolated_E());  // Update the flux
-		twofluidSolver->timeStepping(dt, maxwellSolver->getInterpolated_E(), maxwellSolver->getInterpolated_B()); // Evolve the fluid variables
+		// twofluidSolver->updateMassFluxesImplicit(dt, maxwellSolver->getInterpolated_E());  // Update the flux
+		// twofluidSolver->timeStepping(dt, maxwellSolver->getInterpolated_E(), maxwellSolver->getInterpolated_B()); // Evolve the fluid variables
 		maxwellSolver->evolveMagneticFlux(dt);  // Evolve <b> vector
 
 		iteration++;
 		time += dt;
 		if (iteration % itersPerWrite == 0)  writeSnapshot(iteration, time);
 	}
-	if (timeStamps.end()->first != iteration)  writeSnapshot(iteration, time);
+	//if (timeStamps.end()->first != iteration)  writeSnapshot(iteration, time);
 	std::cout << "Final time:      " << time << std::endl;
 	std::cout << "Final iteration: " << iteration << std::endl;
 

@@ -52,6 +52,7 @@ void TwoFluidSolver::writeSnapshot(H5Writer &writer) const {
 
 
 Eigen::SparseMatrix<double> TwoFluidSolver::get_M_sigma(const double dt) const {
+    /*
     Eigen::VectorXd dualFaceArea(dual->getNumberOfFaces());
     for (const Face* face : dual->getFaces()) {
         dualFaceArea[face->getIndex()] = face->getArea();
@@ -61,7 +62,11 @@ Eigen::SparseMatrix<double> TwoFluidSolver::get_M_sigma(const double dt) const {
 
     Eigen::SparseMatrix<double> M_sigma = 
         dualFaceArea.asDiagonal() * (electron_solver.charge * T_e + ion_solver.charge * T_i);
-    std::cout << "- M_sigma assembled" << std::endl;
+    std::cout << "- M_sigma assembled" << std::endl;*/
+    Eigen::SparseMatrix<double> M_sigma(dual->getNumberOfFaces(), dual->getNumberOfFaces());
+    for ( int i = 0; i < dual->getNumberOfFaces(); i++) {
+        M_sigma.coeffRef(i,i) = 0.1;
+    }
     return M_sigma;
 }
 
@@ -76,7 +81,7 @@ Eigen::VectorXd TwoFluidSolver::get_j_aux(const double dt, const Eigen::MatrixXd
 
     Eigen::VectorXd j_aux = dualFaceArea.asDiagonal() * (electron_solver.charge * mu_e + ion_solver.charge * mu_i);
     std::cout << "- j_aux assembled" << std::endl;
-    return j_aux;
+    return j_aux.setZero();
 }
 
 void TwoFluidSolver::init_A_and_D() {
