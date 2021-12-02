@@ -65,7 +65,7 @@ Eigen::SparseMatrix<double> TwoFluidSolver::get_M_sigma(const double dt) const {
     std::cout << "- M_sigma assembled" << std::endl;*/
     Eigen::SparseMatrix<double> M_sigma(dual->getNumberOfFaces(), dual->getNumberOfFaces());
     for ( int i = 0; i < dual->getNumberOfFaces(); i++) {
-        M_sigma.coeffRef(i,i) = 0.1;
+        M_sigma.coeffRef(i,i) = 0.0;
     }
     return M_sigma;
 }

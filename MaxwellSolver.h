@@ -10,6 +10,7 @@
 #include <Eigen/Sparse>
 
 typedef Eigen::Triplet<double> T;
+class AppmSolver;
 
 /**
  * @brief A class that is for dealing with the Maxwell equation. 
@@ -23,7 +24,7 @@ class MaxwellSolver
 {
 public:
 	struct MaxwellParams {
-		double lambdaSquare = 1e-1;  //< nondimensionalized Debye length
+		double lambdaSquare = 1.0;  //< nondimensionalized Debye length
 	} parameters;
 
 	MaxwellSolver();
@@ -55,7 +56,7 @@ public:
 	Eigen::MatrixXd getInterpolated_B() const;   
 
 	// Get the electric potential assigned to the anode.
-	double getPotential(const double t) const {return 0.5 * (1.0 + std::tanh((t - 1) * 10.0));};
+	double getPotential(const double t) const {return 0.5;};
 
 	// Assign initital conditons to electromagnetic variables
 	void applyInitialCondition();
@@ -125,6 +126,7 @@ private:
 	const int pe2ppL(const int pe_idx)  const {return pe_idx  + primal->facet_counts.nE_interior;};
 	// index of primal boundary edge ---> index of boundary e component
 	const int ppL2pe(const int ppL_idx) const {return ppL_idx - primal->facet_counts.nE_interior;};
-
+	
+	friend class AppmSolver;
 };
 
