@@ -249,6 +249,26 @@ const Eigen::SparseMatrix<double>& MaxwellSolver::get_tC_pL_AI() {
 	return tC_pL_AI;
 }
 
+const Eigen::SparseMatrix<double>& MaxwellSolver::get_tS_pA_AI() {
+	if (tS_pA_AI.size() == 0) {
+		int count = 0;
+		std::vector<T> triplets;
+		triplets.reserve(primal->facet_counts.nV_insulating);
+		for (const Vertex* v : primal->getVertices()) {
+			if (v->getType() == Vertex::Type::Insulating) {
+				const Face* f = dual->getFace(dual->pVertex2dbFace(v->getIndex()));
+				triplets.emplace_back(T(count, dpA2pd(f->getIndex()), 1.0));
+				count++;
+			}
+		}
+		assert(count == primal->facet_counts.nV_insulating);
+		tS_pA_AI.resize(count, dual->facet_counts.nF_boundary);
+		tS_pA_AI.setFromTriplets(triplets.begin(), triplets.end());
+		tS_pA_AI.makeCompressed();
+	}
+	return tS_pA_AI;
+}
+
 const Eigen::SparseMatrix<double>& MaxwellSolver::get_Q_LopP_L() {
 	if (Q_LopP_L.size() == 0) {
 		std::vector<T> triplets;
@@ -330,8 +350,10 @@ void MaxwellSolver::solveLinearSystem(const double time,
 		lambda2 / dt * Eigen::MatrixXd::Identity(tN_pA, tN_pA) + M_sigma.block(N_L, N_L, tN_pA, tN_pA));
 	Eigen::blockFill<double>(triplets, N_L + tN_pA, N_Lo,
 		get_S_pP_pm());
-	Eigen::blockFill<double>(triplets, N_L + tN_pA + N_pP_pm, N_Lo + N_pP,
-		get_tC_pL_AI());
+	// Eigen::blockFill<double>(triplets, N_L + tN_pA + N_pP_pm, N_Lo + N_pP,
+	// 	 get_tC_pL_AI());
+	Eigen::blockFill<double>(triplets, N_L + tN_pA + N_pP_pm, N_Lo + N_pP + N_pL,
+		get_tS_pA_AI()); 
 	// Assemble the square matrix
 	/*
 	mat.block(0, 0, N_L, N_Lo + N_pP) = 

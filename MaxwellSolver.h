@@ -97,12 +97,14 @@ protected:
 	const Eigen::SparseMatrix<double>& get_tC_pL_A();
 	// Compute G_P^pL of size (N_pL, N_pP) 
 	const Eigen::SparseMatrix<double>& get_G_pP_pL();
-	// Compute S_pP^{+-} of size (N_pP, N_pP)
+	// Compute S_pP^{+-} of size (N_pP_pm, N_pP)
 	const Eigen::SparseMatrix<double>& get_S_pP_pm();
 	// Compute tC_pL^AI of size (N_tAI, N_tpL)
 	const Eigen::SparseMatrix<double>& get_tC_pL_AI();
 	// Compute Q_LopP^L of size (N_L, N_Lo + N_pP)
 	const Eigen::SparseMatrix<double>& get_Q_LopP_L();
+	// Compute tS_pA^AI of size (N_tAI, N_pA)
+	const Eigen::SparseMatrix<double>& get_tS_pA_AI();
 
 private:
 
@@ -115,6 +117,7 @@ private:
 	Eigen::SparseMatrix<double> S_pP_pm;
 	Eigen::SparseMatrix<double> tC_pL_AI;
 	Eigen::SparseMatrix<double> Q_LopP_L;
+	Eigen::SparseMatrix<double> tS_pA_AI;
 
 	// index of boundary h component ---> index of dual boundary edge
 	const int ph2dpL(const int ph_idx)  const {return ph_idx  + (dual->getNumberOfEdges() - dual->facet_counts.nE_boundary);};
