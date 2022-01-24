@@ -1,8 +1,8 @@
 #include "MaxwellSolver.h"
-//#include <Eigen/PardisoSupport>
+#include <Eigen/PardisoSupport>
 #include <Eigen/IterativeLinearSolvers>
 #include <unsupported/Eigen/IterativeSolvers>
-#include <Eigen/UmfPackSupport>
+//#include <Eigen/UmfPackSupport>
 //#include <Eigen/SuperLUSupport>
 
 MaxwellSolver::MaxwellSolver()
@@ -321,7 +321,8 @@ void MaxwellSolver::solveLinearSystem(const double time,
 	const int N_pP_pm = primal->facet_counts.nV_electrode;
 	const int tN_AI   = primal->facet_counts.nV_insulating;
 	assert(N_Lo + N_pP + N_pL + tN_pA == N_L + tN_pA + N_pP_pm + tN_AI);
-	Eigen::SparseMatrix<double> mat(N_Lo + N_pP + N_pL + tN_pA, N_Lo + N_pP + N_pL + tN_pA);
+	using SparseMatrix64 = Eigen::SparseMatrix<double, Eigen::ColMajor, long long>;
+	SparseMatrix64 mat(N_Lo + N_pP + N_pL + tN_pA, N_Lo + N_pP + N_pL + tN_pA);
 	std::vector<Eigen::Triplet<double>> triplets;
 	Eigen::VectorXd vec(N_Lo + N_pP + N_pL + tN_pA);
 	vec.setZero();
@@ -372,7 +373,7 @@ void MaxwellSolver::solveLinearSystem(const double time,
 	// Solve
 	std::cout << "-- Linear system assembled. Size = "<< mat.rows();
 	std::cout << " nonZero = " << mat.nonZeros() << std::endl;
-	static Eigen::UmfPackLU<Eigen::SparseMatrix<double>> solver;
+	static Eigen::PardisoLU<SparseMatrix64> solver;
 	static bool initialized = false;
 	if (!initialized) {
 		solver.analyzePattern(mat);
