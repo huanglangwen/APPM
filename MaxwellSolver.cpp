@@ -1,6 +1,9 @@
 #include "MaxwellSolver.h"
-
-
+//#include <Eigen/PardisoSupport>
+#include <Eigen/IterativeLinearSolvers>
+#include <unsupported/Eigen/IterativeSolvers>
+#include <Eigen/UmfPackSupport>
+//#include <Eigen/SuperLUSupport>
 
 MaxwellSolver::MaxwellSolver()
 {
@@ -369,8 +372,20 @@ void MaxwellSolver::solveLinearSystem(const double time,
 	// Solve
 	std::cout << "-- Linear system assembled. Size = "<< mat.rows();
 	std::cout << " nonZero = " << mat.nonZeros() << std::endl;
-	Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
-	solver.compute(mat);
+	static Eigen::UmfPackLU<Eigen::SparseMatrix<double>> solver;
+	static bool initialized = false;
+	if (!initialized) {
+		solver.analyzePattern(mat);
+		initialized = true;
+	}
+	solver.factorize(mat);
+	//Eigen::PardisoLU<Eigen::SparseMatrix<double>> solver;
+	//Eigen::UmfPackLU<Eigen::SparseMatrix<double>> solver;
+	//Eigen::SuperLU<Eigen::SparseMatrix<double>> solver;
+	//Eigen::GMRES<Eigen::SparseMatrix<double>, Eigen::DiagonalPreconditioner<double>> solver;
+	//solver.set_restart(30);
+	//solver.setEigenv(5);
+	//solver.compute(mat);
 	if (solver.info() != Eigen::Success) {
 		std::cout << "********************************" << std::endl;
 		std::cout << "*   Linear system not valid!   *" << std::endl;
